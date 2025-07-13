@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Trend Analyzer – Dark Mode</title>
+  <style>
+    :root {
+      --bg: #0e0e0f;
+      --card: #1b1b1d;
+      --text: #e0e0e0;
+      --accent: #00e5ff;
+      --accent-dark: #009fb2;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 10px;
+      min-height: 100vh;
+    }
+
+    h2, h3 {
+      margin-bottom: 16px;
+      text-align: center;
+      background: linear-gradient(90deg, var(--accent) 0%, #5bffb4 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    form {
+      margin-bottom: 32px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    input[type="text"] {
+      background: var(--card);
+      border: 1px solid var(--accent-dark);
+      border-radius: 6px;
+      padding: 12px 14px;
+      color: var(--text);
+      min-width: 220px;
+      transition: border 0.25s;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    button {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 6px;
+      padding: 12px 24px;
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: var(--accent-dark);
+    }
+
+    /* ripple effect */
+    button:after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.4);
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      transform: scale(1);
+      opacity: 0;
+      pointer-events: none;
+      animation: ripple 0.6s ease-out;
+    }
+
+    @keyframes ripple {
+      to {
+        transform: scale(50);
+        opacity: 0;
+      }
+    }
+
+    button:active:after {
+      left: var(--x);
+      top: var(--y);
+      opacity: 1;
+      transform: scale(0);
+      transition: 0s;
+    }
+
+    .sections {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    ul {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.55);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: color 0.25s;
+    }
+
+    a:hover {
+      color: #5bffb4;
+      text-decoration: underline;
+    }
+  </style>
+  <script>
+    // capture mouse position for ripple
+    document.addEventListener('DOMContentLoaded',()=>{
+      document.querySelectorAll('button').forEach(btn=>{
+        btn.addEventListener('click',e=>{
+          const rect = btn.getBoundingClientRect();
+          btn.style.setProperty('--x', (e.clientX-rect.left)+'px');
+          btn.style.setProperty('--y', (e.clientY-rect.top)+'px');
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+  <h2>Real‑Time Job Trend Analyzer</h2>
+  <form method="POST">
+    <input type="text" name="title" placeholder="Job Title" required>
+    <input type="text" name="location" placeholder="Location" value="Pakistan">
+    <button type="submit">Search Jobs</button>
+  </form>
+
+  {% if data %}
+  <div class="sections">
+    <h3>Top Job Titles</h3>
+    <ul>
+      {% for title, count in data.titles.items() %}
+        <li>{{ title }} ({{ count }})</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Top Companies</h3>
+    <ul>
+      {% for company, count in data.companies.items() %}
+        <li>{{ company }} ({{ count }})</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Top Hiring Locations</h3>
+    <ul>
+      {% for loc, count in data.locations.items() %}
+        <li>{{ loc }} ({{ count }})</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Sample Job Listings</h3>
+    {% for job in data.jobs %}
+      <div class="card">
+        <strong>{{ job.title }}</strong><br>
+        {{ job.company }} – {{ job.location }}<br>
+        <a href="{{ job.link }}" target="_blank">View</a>
+      </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</body>
+</html>
